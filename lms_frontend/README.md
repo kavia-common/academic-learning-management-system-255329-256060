@@ -1,3 +1,23 @@
+# LMS Frontend (Supabase-ready)
+
+This app includes mock authentication with role selection and is now Supabase-ready with client utilities and auth callback route. Backend schema and RLS need to be created in your Supabase project (see ../../assets/supabase.md).
+
+## Supabase Environment Variables (required for real auth)
+Create `.env` in this folder with:
+- REACT_APP_SUPABASE_URL=your-supabase-url
+- REACT_APP_SUPABASE_ANON_KEY=your-anon-key
+- REACT_APP_SITE_URL=http://localhost:3000
+
+Then restart the dev server.
+
+## Auth Redirects
+In Supabase Dashboard → Authentication → URL Configuration:
+- Site URL: your dev/prod URL (e.g., http://localhost:3000)
+- Redirect URLs: include http://localhost:3000/**
+
+After configuring, email/password sign-up/sign-in will redirect to `/auth/callback`.
+
+Original mock documentation below:
 # LMS Frontend (Mock Auth Phase)
 
 This app now includes a mock authentication flow with role selection and route guards. No external services are used.

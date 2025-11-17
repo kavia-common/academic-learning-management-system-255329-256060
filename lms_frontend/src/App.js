@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import Instructor from "./pages/Instructor";
 import Admin from "./pages/Admin";
 import { ROLES } from "./services/authService";
+import AuthCallback from "./pages/AuthCallback";
+import AuthError from "./pages/AuthError";
 
 /**
  * Root application with routing and auth provider.
@@ -54,6 +56,8 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/signin" replace />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/auth/callback" element={<React.Suspense fallback={<div>Loading...</div>}><AuthCallback /></React.Suspense>} />
+      <Route path="/auth/error" element={<AuthError />} />
 
       {/* Protected student dashboard */}
       <Route element={<ProtectedRoute />}>

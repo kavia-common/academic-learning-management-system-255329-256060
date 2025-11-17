@@ -1,8 +1,11 @@
 "use strict";
 
 /**
- * Mock Auth Service with in-memory store and localStorage persistence.
- * Designed to be swapped with Supabase in the future without changing consumers.
+ * Auth Service (mock for now).
+ * Supabase-ready notes:
+ * - A real implementation should call supabase.auth.signUp/signIn and read `profiles.role`.
+ * - For signUp/signIn redirects, pass redirectTo/emailRedirectTo = `${getURL()}auth/callback`.
+ * - Do not hardcode URLs; rely on REACT_APP_SITE_URL and utils/getURL.js.
  */
 
 // Internal in-memory session cache
