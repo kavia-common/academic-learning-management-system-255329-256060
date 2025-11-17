@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { ROLES, getRedirectPathForRole } from "../services/authService";
 
 /**
  * Sign Up Page
- * - Fields: name, email, password, confirmPassword, role selector
- * - Client-side validation with helpful messages
- * - On success, redirect by role
+ * TEMPORARY: No real authentication performed; validates and navigates to a role-based default.
+ * TODO(auth): Wire to useAuth.signUp when auth is re-enabled.
  */
 
 // PUBLIC_INTERFACE
 export default function SignUp() {
-  /** SignUp page component */
-  const { signUp } = useAuth();
+  /** SignUp page component (no real auth) */
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -25,12 +22,10 @@ export default function SignUp() {
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [serverError, setServerError] = useState("");
 
   const onChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
     setErrors((err) => ({ ...err, [e.target.name]: "" }));
-    setServerError("");
   };
 
   const validate = () => {
@@ -51,29 +46,16 @@ export default function SignUp() {
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length) return;
-    try {
-      setSubmitting(true);
-      const session = await signUp({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password,
-        confirmPassword: form.confirmPassword,
-        role: form.role,
-      });
-      const target = getRedirectPathForRole(session.role);
-      navigate(target, { replace: true });
-    } catch (err) {
-      setServerError(err?.message || "Unable to sign up. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    setSubmitting(true);
+    // Simulate success and navigate to role path
+    const target = getRedirectPathForRole(form.role);
+    navigate(target, { replace: true });
   };
 
   return (
     <div style={styles.wrapper}>
       <form onSubmit={onSubmit} style={styles.card} noValidate>
         <h1 style={styles.title}>Create your account</h1>
-        {serverError && <div role="alert" style={styles.alert}>{serverError}</div>}
         <div style={styles.field}>
           <label htmlFor="name" style={styles.label}>Name</label>
           <input
@@ -151,6 +133,9 @@ export default function SignUp() {
         </button>
         <p style={styles.muted}>
           Already have an account? <Link to="/signin" style={styles.link}>Sign in</Link>
+        </p>
+        <p style={{ fontSize: 12, color: "#6B7280", marginTop: 8 }}>
+          Note: Authentication is temporarily disabled. This form will navigate without creating an account. {/* TODO(auth) */}
         </p>
       </form>
     </div>

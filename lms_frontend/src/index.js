@@ -2,25 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { AuthProvider } from './context/AuthContext';
+import { NoAuthProvider } from './context/AuthContext';
 import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 /**
- * Render tree order:
- * <BrowserRouter>
- *   <AuthProvider>
- *     <App />
- *   </AuthProvider>
- * </BrowserRouter>
- * This ensures any useAuth consumers (including Layout within App) are under AuthProvider.
+ * TEMPORARY: Auth disabled — use NoAuthProvider to provide safe defaults.
+ * TODO(auth): Replace NoAuthProvider with AuthProvider when authentication is re-enabled.
  */
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
+      <NoAuthProvider>
         <App />
-      </AuthProvider>
+      </NoAuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

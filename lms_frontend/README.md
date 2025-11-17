@@ -4,6 +4,16 @@ The app is wired to Supabase for authentication (email/password) and data (cours
 
 See ../../assets/supabase.md for required SQL (tables, RLS, RPCs) and dashboard settings.
 
+## Temporary Notice: Authentication Disabled
+To unblock runtime errors, the authentication layer is temporarily disabled:
+- `AuthProvider` has been replaced by a `NoAuthProvider` that supplies safe defaults.
+- `useAuth` returns a non-throwing default when no provider is present.
+- `ProtectedRoute` and `RoleGuard` currently allow all routes.
+- Sign-in/Sign-up pages render forms and navigate but do not perform real auth.
+- Supabase utilities remain intact for future re-enable.
+
+TODO(auth): Restore real `AuthProvider`, guards, and wire SignIn/SignUp to Supabase.
+
 ## Environment Variables (required for real auth/data)
 Create `.env` in this folder (see `.env.example`) with:
 - REACT_APP_SUPABASE_URL=your-supabase-url
@@ -32,22 +42,16 @@ In Supabase Dashboard → Authentication → URL Configuration:
 After configuring, email/password sign-up/sign-in will redirect to `/auth/callback`.
 
 ## Routes and Session
-- `/signin` — Email, password (Supabase signInWithPassword)
-- `/signup` — Name, email, password, confirm password, role (Student / Instructor / Admin)
-  - On sign-up, a row is upserted into `profiles` with the selected role. If email confirmation is required, a temporary session may be shown until confirmation.
+- `/signin` — Email, password (temporarily no real auth)
+- `/signup` — Name, email, password, confirm password, role (temporarily no real auth)
 - `/auth/callback` — Handles Supabase redirect; no-ops to `/signin` in mock mode
-- `/dashboard` — Student landing (protected)
-- `/instructor` — Instructor landing (protected + instructor only)
-- `/admin` — Admin landing (protected + admin only)
-
-The AuthContext listens for Supabase auth state changes when configured; otherwise it provides mock-session behavior from local storage.
+- `/dashboard` — Student landing (temporarily not protected)
+- `/instructor` — Instructor landing (temporarily not role-guarded)
+- `/admin` — Admin landing (temporarily not role-guarded)
 
 ## Data Services
 - Admin management (courses/assignments) uses Supabase-backed service when envs exist; otherwise mock localStorage.
-- Dashboard attempts RLS-friendly queries for courses and assignments (via `course_assignments` view). If unavailable, falls back to mock dashboard data.
-
-## Migration from Mocks
-- Supabase auth/data are used only when configured. In mock mode, the UI remains functional with local flows.
+- Dashboard attempts public queries when possible; otherwise falls back to mock dashboard data.
 
 ## Scripts
 - `npm start` — Run app at http://localhost:3000

@@ -1,20 +1,19 @@
 import React from "react";
-import { useAuth } from "../context/AuthContext";
 
 /**
  * Instructor placeholder page
+ * TEMPORARY: Auth disabled — static welcome.
+ * TODO(auth): Personalize with user and add sign-out when re-enabled.
  */
 
 // PUBLIC_INTERFACE
 export default function Instructor() {
-  /** Instructor page placeholder */
-  const { user, signOut } = useAuth();
+  /** Instructor page placeholder (auth disabled) */
   return (
     <div style={styles.page}>
       <header style={styles.header}><h1 style={styles.h1}>Instructor Area</h1></header>
       <section>
-        <p>Welcome, {user?.name || "Instructor"}!</p>
-        <button onClick={signOut} style={styles.btn}>Sign out</button>
+        <p>Welcome, Instructor!</p>
       </section>
     </div>
   );

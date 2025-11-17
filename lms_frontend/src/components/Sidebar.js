@@ -1,10 +1,11 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 /**
  * Sidebar component with profile header and navigation.
  * Implements design from assets/sidebar_component_design_notes.md using Ocean Professional theme tokens.
+ * TEMPORARY: Auth disabled — show placeholder user info.
+ * TODO(auth): Replace placeholder with actual user/role from useAuth when re-enabled.
  */
 
 // Inline SVG icon primitives (16px), using currentColor
@@ -44,54 +45,50 @@ function IconUser(props) {
   );
 }
 
-/**
- * Note: This component uses useAuth and must be rendered under <AuthProvider />.
- * For isolated usage in tests/stories, wrap with withAuth from context/AuthContext.
- */
 // PUBLIC_INTERFACE
 export default function Sidebar() {
-    /** Sidebar with profile and nav items */
-    const { user, role } = useAuth();
-    const location = useLocation();
+  /** Sidebar with profile and nav items (auth disabled) */
+  const location = useLocation();
+  const placeholderUser = { name: "Student Name", email: "", role: "Student" };
 
-    const items = [
-      { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: IconDashboard },
-      { key: "courses", label: "Courses", href: "/dashboard#courses", icon: IconBook },
-      { key: "quizzes", label: "Quizzes", href: "/dashboard#quizzes", icon: IconPin, badge: "!" },
-      { key: "assignments", label: "My Assignments", href: "/dashboard#assignments", icon: IconDoc },
-      { key: "profile", label: "Profile", href: "/dashboard#profile", icon: IconUser },
-    ];
+  const items = [
+    { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: IconDashboard },
+    { key: "courses", label: "Courses", href: "/dashboard#courses", icon: IconBook },
+    { key: "quizzes", label: "Quizzes", href: "/dashboard#quizzes", icon: IconPin, badge: "!" },
+    { key: "assignments", label: "My Assignments", href: "/dashboard#assignments", icon: IconDoc },
+    { key: "profile", label: "Profile", href: "/dashboard#profile", icon: IconUser },
+  ];
 
-    return (
-      <aside className="lms-sidebar" aria-label="Primary">
-        <div className="profile">
-          <div className="avatar" aria-hidden="true">{(user?.name || "S").slice(0,1).toUpperCase()}</div>
-          <div className="name" title={user?.email || ""}>{user?.name || "Student Name"}</div>
-          <div className="meta">{role || "Student"} • Class: Junior</div>
-        </div>
-        <nav className="menu" aria-label="Sidebar">
-          {items.map((it) => {
-            const active = location.pathname === it.href || location.hash === it.href.replace("/dashboard", "");
-            const Icon = it.icon;
-            return (
-              <Link
-                key={it.key}
-                to={it.href}
-                className={`menu-item${active ? " active" : ""}`}
-                aria-current={active ? "page" : undefined}
-                aria-label={it.label}
-              >
-                <Icon className="icon" />
-                <span className="label">{it.label}</span>
-                {it.badge && (
-                  <span className="badge" aria-label={`${it.label}, 1 alert`}>!</span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-      </aside>
-    );
+  return (
+    <aside className="lms-sidebar" aria-label="Primary">
+      <div className="profile">
+        <div className="avatar" aria-hidden="true">{(placeholderUser.name || "S").slice(0,1).toUpperCase()}</div>
+        <div className="name" title={placeholderUser.email || ""}>{placeholderUser.name}</div>
+        <div className="meta">{placeholderUser.role} • Class: Junior</div>
+      </div>
+      <nav className="menu" aria-label="Sidebar">
+        {items.map((it) => {
+          const active = location.pathname === it.href || location.hash === it.href.replace("/dashboard", "");
+          const Icon = it.icon;
+          return (
+            <Link
+              key={it.key}
+              to={it.href}
+              className={`menu-item${active ? " active" : ""}`}
+              aria-current={active ? "page" : undefined}
+              aria-label={it.label}
+            >
+              <Icon className="icon" />
+              <span className="label">{it.label}</span>
+              {it.badge && (
+                <span className="badge" aria-label={`${it.label}, 1 alert`}>!</span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+    </aside>
+  );
 }
 
 // Component styles co-located for simplicity; uses CSS variables defined in index.css

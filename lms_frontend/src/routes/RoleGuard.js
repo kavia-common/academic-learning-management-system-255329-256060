@@ -1,21 +1,13 @@
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Outlet } from "react-router-dom";
 
 /**
- * Restrict access to users with specific roles.
- * Usage: <Route element={<RoleGuard allowed={['Admin']} />}> ... </Route>
+ * TEMPORARY: Auth/role checks disabled — always allow.
+ * TODO(auth): Reinstate role-based access control.
  */
 
-/* Uses role from AuthContext; must be rendered under <AuthProvider />. */
 // PUBLIC_INTERFACE
 export default function RoleGuard({ allowed = [] }) {
-  /** RoleGuard element used in react-router route definitions */
-  const { role } = useAuth();
-  if (!allowed.includes(role)) {
-    // If role not allowed, send to default dashboard based on their role (or signin if unknown)
-    if (!role) return <Navigate to="/signin" replace />;
-    return <Navigate to="/" replace />;
-  }
+  /** RoleGuard element used in react-router route definitions (temporarily permissive) */
   return <Outlet />;
 }

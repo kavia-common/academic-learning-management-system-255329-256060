@@ -2,21 +2,20 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import Dashboard from './pages/Dashboard';
 import Sidebar from './components/Sidebar';
-import { AuthProvider } from './context/AuthContext';
+import { NoAuthProvider } from './context/AuthContext';
 
-describe('useAuth guard clarity', () => {
-  it('throws a clear error when a consumer is rendered without AuthProvider', () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => render(<Sidebar />)).toThrow(/useAuth must be used within <AuthProvider \/>/i);
-    expect(() => render(<Dashboard />)).toThrow(/useAuth must be used within <AuthProvider \/>/i);
-    consoleError.mockRestore();
+describe('useAuth temporary no-op behavior', () => {
+  it('does not throw when rendering consumers without explicit provider (auth disabled)', () => {
+    // Should not throw due to safe default
+    render(<Sidebar />);
+    render(<Dashboard />);
   });
 
-  it('renders fine when wrapped with AuthProvider', () => {
+  it('renders fine when wrapped with NoAuthProvider', () => {
     const { unmount } = render(
-      <AuthProvider>
+      <NoAuthProvider>
         <Sidebar />
-      </AuthProvider>
+      </NoAuthProvider>
     );
     unmount();
   });

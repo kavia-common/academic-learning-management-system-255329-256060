@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
-import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleGuard from "./routes/RoleGuard";
 import SignIn from "./pages/SignIn";
@@ -15,19 +14,14 @@ import AuthError from "./pages/AuthError";
 import MockModeBanner from "./components/MockModeBanner";
 
 /**
- * Root application routes and layout (providers are mounted at index.js).
- * IMPORTANT: Components using useAuth (e.g., Layout) must only render under AuthProvider.
- * Note: Layout is intentionally a file-private component and not exported to avoid usage outside App.
+ * Root application routes and layout.
+ * TEMPORARY: Auth UI simplified to avoid useAuth dependency.
+ * TODO(auth): Re-introduce conditional nav based on auth once provider is restored.
  */
 
-/**
- * Note: Layout intentionally remains local to this module and is NOT exported.
- * This prevents accidental mounting outside of AuthProvider in other entry points.
- */
-// Local Layout component; intentionally not exported to avoid accidental usage outside provider
+// Local Layout without auth dependencies
 function Layout({ children }) {
   const [theme, setTheme] = useState("light");
-  const { isAuthenticated, signOut } = useAuth();
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -44,14 +38,8 @@ function Layout({ children }) {
           {theme === "light" ? "🌙 Dark" : "☀️ Light"}
         </button>
         <nav style={{ display: "flex", gap: 12 }}>
-          {!isAuthenticated ? (
-            <>
-              <a className="App-link" href="/signin">Sign in</a>
-              <a className="App-link" href="/signup">Sign up</a>
-            </>
-          ) : (
-            <button onClick={signOut} className="btn" style={{ padding: "6px 10px" }}>Sign out</button>
-          )}
+          <a className="App-link" href="/signin">Sign in</a>
+          <a className="App-link" href="/signup">Sign up</a>
         </nav>
       </header>
       <MockModeBanner />
@@ -76,19 +64,19 @@ function AppRoutes() {
       />
       <Route path="/auth/error" element={<AuthError />} />
 
-      {/* Protected student dashboard */}
+      {/* Protected student dashboard (temporarily always allowed) */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
       </Route>
 
-      {/* Instructor-only routes */}
+      {/* Instructor-only routes (temporarily always allowed) */}
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleGuard allowed={[ROLES.INSTRUCTOR]} />}>
           <Route path="/instructor" element={<Instructor />} />
         </Route>
       </Route>
 
-      {/* Admin-only routes */}
+      {/* Admin-only routes (temporarily always allowed) */}
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleGuard allowed={[ROLES.ADMIN]} />}>
           <Route path="/admin" element={<Admin />} />
@@ -105,7 +93,6 @@ function AppRoutes() {
 export default function App() {
   /**
    * Application component with layout and routes.
-   * Note: AuthProvider and BrowserRouter are mounted in index.js to ensure useAuth is available.
    */
   return (
     <Layout>

@@ -25,7 +25,7 @@ describe('index render tree', () => {
     jest.restoreAllMocks();
   });
 
-  it('mounts without throwing when using BrowserRouter+AuthProvider+App', async () => {
+  it('mounts without throwing when using BrowserRouter+NoAuthProvider+App', async () => {
     // Dynamically import index.js which triggers the render call.
     // Mock createRoot to return an object with render that calls a noop.
     const renderCalls = [];

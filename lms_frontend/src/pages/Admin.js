@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { Card } from "../components/widgets/Cards";
@@ -7,11 +6,8 @@ import { getAdminDataService } from "../services/adminStore";
 
 /**
  * Admin page for managing Courses and Assignments.
- * - Admin only (route already role-guarded in App.js)
- * - Client-side validation
- * - Uses Supabase when configured (RLS-aware); falls back to mock local storage when not configured
- * - Lists to view created items
- * - Ocean Professional theme styles (using existing CSS tokens)
+ * TEMPORARY: Auth/role guards bypassed at router; UI does not depend on useAuth.
+ * TODO(auth): Restrict to Admin role and add sign-out in header when re-enabled.
  */
 
 // Helpers for inputs
@@ -74,8 +70,7 @@ function Select({ id, label, value, onChange, error, required, options }) {
 
 // PUBLIC_INTERFACE
 export default function Admin() {
-  /** Admin page with course and assignment management */
-  const { user, signOut } = useAuth();
+  /** Admin page with course and assignment management (auth disabled) */
   const svc = useMemo(() => getAdminDataService(), []);
   const [courses, setCourses] = useState([]);
   const [assignments, setAssignments] = useState([]);
@@ -186,8 +181,7 @@ export default function Admin() {
     { label: "Dashboard", href: "/dashboard" },
     { label: "Admin", href: "/admin" },
     { label: "Instructor", href: "/instructor" },
-    { label: "Sign out", href: "#", onClick: (e) => { e.preventDefault(); signOut(); } },
-  ]), [signOut]);
+  ]), []);
 
   return (
     <div className="app-grid">

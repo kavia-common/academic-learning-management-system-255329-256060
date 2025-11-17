@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { getRedirectPathForRole } from "../services/authService";
 
 /**
  * Sign In Page
- * - Fields: email, password
- * - Client-side validation with basic messages
- * - On success, redirect based on role or back to 'from'
+ * TEMPORARY: No real authentication performed; acts as a plain form then navigates to dashboard.
+ * TODO(auth): Wire to useAuth.signIn when auth is re-enabled.
  */
 
 // PUBLIC_INTERFACE
 export default function SignIn() {
-  /** SignIn page component */
-  const { signIn } = useAuth();
+  /** SignIn page component (no real auth) */
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname;
@@ -21,12 +18,10 @@ export default function SignIn() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [serverError, setServerError] = useState("");
 
   const onChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
     setErrors((err) => ({ ...err, [e.target.name]: "" }));
-    setServerError("");
   };
 
   const validate = () => {
@@ -42,23 +37,16 @@ export default function SignIn() {
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length) return;
-    try {
-      setSubmitting(true);
-      const session = await signIn(form.email.trim(), form.password);
-      const target = from || getRedirectPathForRole(session.role);
-      navigate(target, { replace: true });
-    } catch (err) {
-      setServerError(err?.message || "Unable to sign in. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    setSubmitting(true);
+    // Simulate success and navigate
+    const target = from || getRedirectPathForRole("Student");
+    navigate(target, { replace: true });
   };
 
   return (
     <div style={styles.wrapper}>
       <form onSubmit={onSubmit} style={styles.card} noValidate>
         <h1 style={styles.title}>Sign in</h1>
-        {serverError && <div role="alert" style={styles.alert}>{serverError}</div>}
         <div style={styles.field}>
           <label htmlFor="email" style={styles.label}>Email</label>
           <input
@@ -93,6 +81,9 @@ export default function SignIn() {
         <p style={styles.muted}>
           No account? <Link to="/signup" style={styles.link}>Sign up</Link>
         </p>
+        <p style={{ fontSize: 12, color: "#6B7280", marginTop: 8 }}>
+          Note: Authentication is temporarily disabled. This form will navigate without logging in. {/* TODO(auth) */}
+        </p>
       </form>
     </div>
   );
@@ -110,5 +101,4 @@ const styles = {
   submit: { width: "100%", marginTop: 8, padding: "10px 12px", borderRadius: 10, border: "none", background: "#2563EB", color: "#fff", fontWeight: 600, cursor: "pointer" },
   muted: { fontSize: 13, color: "#6B7280", marginTop: 12, textAlign: "center" },
   link: { color: "#2563EB", textDecoration: "none" },
-  alert: { background: "#FEF2F2", color: "#991B1B", border: "1px solid #FECACA", padding: "8px 10px", borderRadius: 8, marginBottom: 12, fontSize: 13 },
 };

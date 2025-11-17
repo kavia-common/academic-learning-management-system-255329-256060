@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { Card } from "../components/widgets/Cards";
@@ -9,17 +8,13 @@ import { getSupabase, isSupabaseConfigured } from "../utils/supabaseClient";
 
 /**
  * Student Dashboard page.
- * Uses Sidebar (fixed), Header with centered title and quick links, and a grid of cards:
- * - Enrolled Courses with progress bars
- * - Upcoming Deadlines list
- * - Announcements feed
- * Includes a floating feedback tab on the right with "Beta" label.
+ * TEMPORARY: Uses mock data or public reads when available; no auth dependency.
+ * TODO(auth): When auth is re-enabled, personalize with user context and sign-out action.
  */
 
 // PUBLIC_INTERFACE
 export default function Dashboard() {
-  /** Student dashboard page implementation */
-  const { user, signOut } = useAuth();
+  /** Student dashboard page implementation (auth disabled) */
   const [courses, setCourses] = useState([]);
   const [deadlines, setDeadlines] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -27,10 +22,10 @@ export default function Dashboard() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      if (isSupabaseConfigured() && user?.id) {
+      // Best-effort: if supabase publicly readable, show some data, else mock
+      if (isSupabaseConfigured()) {
         try {
           const supabase = getSupabase();
-          // Courses: public.courses (anyone can read) + join instructor later; show minimal fields
           const { data: cData, error: cErr } = await supabase
             .from("courses")
             .select("id, title, code, start_date, end_date, instructor_id")
@@ -45,7 +40,6 @@ export default function Dashboard() {
             nextDue: c.end_date || "",
           }));
 
-          // Deadlines: assignments for enrolled courses (via policy) or public view if created; fallback none
           const { data: aData, error: aErr } = await supabase
             .from("course_assignments")
             .select("id, title, course_code, due_date")
@@ -56,7 +50,6 @@ export default function Dashboard() {
               ? []
               : aData.map((d) => ({ id: d.id, course: d.course_code, title: d.title, dueDate: d.due_date }));
 
-          // Announcements: none in schema; keep mock for now
           const anns = await getAnnouncements();
 
           if (!mounted) return;
@@ -65,13 +58,13 @@ export default function Dashboard() {
           setAnnouncements(anns);
           return;
         } catch {
-          // fall back to mock if any error (e.g., RLS not yet configured)
+          // ignore and fall back to mock
         }
       }
 
       const [c, d, a] = await Promise.all([
-        getEnrolledCourses(user?.id),
-        getUpcomingDeadlines(user?.id),
+        getEnrolledCourses(null),
+        getUpcomingDeadlines(null),
         getAnnouncements(),
       ]);
       if (!mounted) return;
@@ -82,7 +75,7 @@ export default function Dashboard() {
     return () => {
       mounted = false;
     };
-  }, [user?.id]);
+  }, []);
 
   const quickLinks = useMemo(() => ([
     { label: "Dashboard", href: "/dashboard" },
@@ -130,11 +123,7 @@ export default function Dashboard() {
               </ul>
             </Card>
 
-            <Card title="Announcements" subtitle="Latest updates" footer={
-              <div className="foot-actions">
-                <button className="btn" onClick={signOut}>Sign out</button>
-              </div>
-            }>
+            <Card title="Announcements" subtitle="Latest updates">
               <div className="vstack">
                 {announcements.map((a) => (
                   <article key={a.id} className="announcement">
