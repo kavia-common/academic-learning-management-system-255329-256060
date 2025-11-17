@@ -2,10 +2,10 @@
 
 /**
  * Auth Service using Supabase email/password flows, with role persistence via profiles table.
- * Uses env vars for configuration; falls back with helpful errors if not configured.
+ * Uses env vars for configuration; falls back to mock mode when not configured.
  */
 
-import { supabase } from "../utils/supabaseClient";
+import { getSupabase, isSupabaseConfigured as isClientConfigured } from "../utils/supabaseClient";
 import { getURL } from "../utils/getURL";
 
 // Internal in-memory session cache (mirrors supabase auth state)
@@ -44,8 +44,7 @@ export function isSupabaseConfigured() {
   /**
    * Returns true if Supabase envs are present.
    */
-  const { supabaseUrl, supabaseAnonKey } = getEnvConfig();
-  return Boolean(supabaseUrl && supabaseAnonKey);
+  return isClientConfigured();
 }
 
 /**
@@ -68,7 +67,8 @@ export function isSupabaseConfigured() {
 })();
 
 async function readProfileRole(userId) {
-  if (!userId) return null;
+  const supabase = getSupabase();
+  if (!supabase || !userId) return null;
   const { data, error } = await supabase
     .from("profiles")
     .select("role, full_name, email, id")
@@ -107,13 +107,13 @@ function shapeSessionFromSupabase(supabaseSession, roleFallback = ROLES.STUDENT,
 // PUBLIC_INTERFACE
 export async function signIn(email, password) {
   /**
-   * Sign in with Supabase; reads role from profiles and returns shaped session.
+   * Sign in with Supabase or error when not configured (UI will show mock mode).
    */
   if (!email || !password) throw new Error("Email and password are required.");
   if (!isSupabaseConfigured()) {
     throw new Error("Supabase not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.");
   }
-
+  const supabase = getSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -146,6 +146,7 @@ export async function signUp({ name, email, password, confirmPassword, role }) {
   if (!isSupabaseConfigured()) {
     throw new Error("Supabase not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.");
   }
+  const supabase = getSupabase();
 
   const redirectTo = `${getURL()}auth/callback`;
 
@@ -205,12 +206,9 @@ export async function signUp({ name, email, password, confirmPassword, role }) {
 // PUBLIC_INTERFACE
 export function getSession() {
   /**
-   * Get current session from cache or Supabase (best-effort).
+   * Get current session from cache or legacy storage (mock fallback).
    */
   if (_session) return _session;
-  // try to shape from supabase if available
-  // Note: getSession is async in supabase, but this method is sync for compatibility.
-  // Callers that need strict freshness should rely on subscribeToAuthChanges.
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -226,10 +224,13 @@ export function getSession() {
 // PUBLIC_INTERFACE
 export async function signOut() {
   /**
-   * Sign out from Supabase and clear cache.
+   * Sign out from Supabase when configured and clear cache.
    */
+  const supabase = getSupabase();
   try {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
   } catch {
     // ignore
   }
@@ -259,8 +260,13 @@ export function getRedirectPathForRole(role) {
 export function subscribeToAuthChanges(callback) {
   /**
    * Subscribe to Supabase auth state changes; callback receives shaped session or null.
-   * Returns unsubscribe function.
+   * Returns unsubscribe function. No-ops in mock mode.
    */
+  const supabase = getSupabase();
+  if (!supabase) {
+    // In mock mode, return a no-op unsubscribe
+    return () => {};
+  }
   const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
     if (!session) {
       _session = null;

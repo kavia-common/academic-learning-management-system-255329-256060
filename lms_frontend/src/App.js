@@ -12,6 +12,7 @@ import Admin from "./pages/Admin";
 import { ROLES } from "./services/authService";
 import AuthCallback from "./pages/AuthCallback";
 import AuthError from "./pages/AuthError";
+import MockModeBanner from "./components/MockModeBanner";
 
 /**
  * Root application with routing and auth provider.
@@ -47,6 +48,7 @@ function Layout({ children }) {
           )}
         </nav>
       </header>
+      <MockModeBanner />
       <main style={{ padding: 16 }}>{children}</main>
     </div>
   );

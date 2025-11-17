@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../utils/supabaseClient";
+import { getSupabase, isSupabaseConfigured } from "../utils/supabaseClient";
 import { handleAuthError } from "../utils/supabaseAuthHelpers";
 import { getRedirectPathForRole } from "../services/authService";
 
@@ -9,6 +9,12 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const run = async () => {
+      if (!isSupabaseConfigured()) {
+        // If not configured, just route to signin (mock mode doesn't use callback)
+        navigate("/signin", { replace: true });
+        return;
+      }
+      const supabase = getSupabase();
       const { data, error } = await supabase.auth.getSessionFromUrl({
         storeSession: true,
       });

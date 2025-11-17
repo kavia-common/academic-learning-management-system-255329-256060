@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import { Card } from "../components/widgets/Cards";
 import { ProgressBar } from "../components/widgets/Progress";
 import { getAnnouncements, getEnrolledCourses, getUpcomingDeadlines } from "../services/mockData";
-import { supabase } from "../utils/supabaseClient";
+import { getSupabase, isSupabaseConfigured } from "../utils/supabaseClient";
 
 /**
  * Student Dashboard page.
@@ -27,9 +27,9 @@ export default function Dashboard() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const supaReady = Boolean(process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_ANON_KEY);
-      if (supaReady && user?.id) {
+      if (isSupabaseConfigured() && user?.id) {
         try {
+          const supabase = getSupabase();
           // Courses: public.courses (anyone can read) + join instructor later; show minimal fields
           const { data: cData, error: cErr } = await supabase
             .from("courses")
@@ -41,7 +41,7 @@ export default function Dashboard() {
             id: c.id,
             title: c.title,
             instructor: c.instructor_id?.slice(0, 8) || "Instructor",
-            progress: Math.floor(Math.random() * 50) + 40, // placeholder until progress implemented
+            progress: Math.floor(Math.random() * 50) + 40,
             nextDue: c.end_date || "",
           }));
 
@@ -51,7 +51,6 @@ export default function Dashboard() {
             .select("id, title, course_code, due_date")
             .order("due_date", { ascending: true })
             .limit(10);
-          // If view not available due to setup, ignore error and fallback to empty
           const deadlinesShaped =
             aErr || !aData
               ? []

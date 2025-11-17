@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 /**
  * Protects routes requiring authentication.
  * Redirects unauthenticated users to /signin with 'from' state.
+ * Works in both Supabase and mock modes (AuthContext abstracts the session).
  */
 
 // PUBLIC_INTERFACE

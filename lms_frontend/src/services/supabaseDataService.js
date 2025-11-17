@@ -1,4 +1,4 @@
-import { supabase } from "../utils/supabaseClient";
+import { getSupabase } from "../utils/supabaseClient";
 
 /**
  * Supabase-backed data service for Courses and Assignments.
@@ -7,6 +7,8 @@ import { supabase } from "../utils/supabaseClient";
  */
 export const SupabaseAdminDataService = {
   async listCourses() {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error("Supabase not configured");
     const { data, error } = await supabase
       .from("courses")
       .select("id, code, title, start_date, end_date, instructor_id")
@@ -24,6 +26,8 @@ export const SupabaseAdminDataService = {
   },
 
   async createCourse(payload) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error("Supabase not configured");
     const { title, code, instructor, startDate, endDate } = payload;
     const { data: user } = await supabase.auth.getUser();
     const instructorId = user?.user?.id;
@@ -50,6 +54,8 @@ export const SupabaseAdminDataService = {
   },
 
   async listAssignments() {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error("Supabase not configured");
     const { data, error } = await supabase
       .from("assignments")
       .select("id, course_id, title, due_date, points")
@@ -65,6 +71,8 @@ export const SupabaseAdminDataService = {
   },
 
   async createAssignment(payload) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error("Supabase not configured");
     const { title, courseCode, dueDate, points, description } = payload;
     // Find course by code (assuming unique)
     const { data: courses, error: cErr } = await supabase
