@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import { Card } from "../components/widgets/Cards";
 import { ProgressBar } from "../components/widgets/Progress";
 import { getAnnouncements, getEnrolledCourses, getUpcomingDeadlines } from "../services/mockData";
+import { supabase } from "../utils/supabaseClient";
 
 /**
  * Student Dashboard page.
@@ -26,6 +27,49 @@ export default function Dashboard() {
   useEffect(() => {
     let mounted = true;
     (async () => {
+      const supaReady = Boolean(process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_ANON_KEY);
+      if (supaReady && user?.id) {
+        try {
+          // Courses: public.courses (anyone can read) + join instructor later; show minimal fields
+          const { data: cData, error: cErr } = await supabase
+            .from("courses")
+            .select("id, title, code, start_date, end_date, instructor_id")
+            .order("created_at", { ascending: false })
+            .limit(10);
+          if (cErr) throw cErr;
+          const coursesShaped = (cData || []).map((c) => ({
+            id: c.id,
+            title: c.title,
+            instructor: c.instructor_id?.slice(0, 8) || "Instructor",
+            progress: Math.floor(Math.random() * 50) + 40, // placeholder until progress implemented
+            nextDue: c.end_date || "",
+          }));
+
+          // Deadlines: assignments for enrolled courses (via policy) or public view if created; fallback none
+          const { data: aData, error: aErr } = await supabase
+            .from("course_assignments")
+            .select("id, title, course_code, due_date")
+            .order("due_date", { ascending: true })
+            .limit(10);
+          // If view not available due to setup, ignore error and fallback to empty
+          const deadlinesShaped =
+            aErr || !aData
+              ? []
+              : aData.map((d) => ({ id: d.id, course: d.course_code, title: d.title, dueDate: d.due_date }));
+
+          // Announcements: none in schema; keep mock for now
+          const anns = await getAnnouncements();
+
+          if (!mounted) return;
+          setCourses(coursesShaped);
+          setDeadlines(deadlinesShaped);
+          setAnnouncements(anns);
+          return;
+        } catch {
+          // fall back to mock if any error (e.g., RLS not yet configured)
+        }
+      }
+
       const [c, d, a] = await Promise.all([
         getEnrolledCourses(user?.id),
         getUpcomingDeadlines(user?.id),
@@ -36,7 +80,9 @@ export default function Dashboard() {
       setDeadlines(d);
       setAnnouncements(a);
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [user?.id]);
 
   const quickLinks = useMemo(() => ([

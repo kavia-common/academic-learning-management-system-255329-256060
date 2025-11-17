@@ -16,7 +16,7 @@ export default function AuthCallback() {
         handleAuthError(error, navigate);
         return;
       }
-      // Fetch profile to know role
+      // Fetch profile to know role and route appropriately
       const user = data?.session?.user;
       if (!user) {
         navigate("/signin", { replace: true });

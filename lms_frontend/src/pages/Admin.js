@@ -9,7 +9,7 @@ import { getAdminDataService } from "../services/adminStore";
  * Admin page for managing Courses and Assignments.
  * - Admin only (route already role-guarded in App.js)
  * - Client-side validation
- * - Persistence via in-memory + localStorage mock service
+ * - Uses Supabase when configured (RLS-aware); falls back to mock local storage when not configured
  * - Lists to view created items
  * - Ocean Professional theme styles (using existing CSS tokens)
  */

@@ -1,8 +1,9 @@
 import { supabase } from "../utils/supabaseClient";
 
 /**
- * Supabase-backed data service scaffolding for Courses and Assignments.
+ * Supabase-backed data service for Courses and Assignments.
  * Note: Requires schema and RLS from assets/supabase.md and valid env vars.
+ * Shapes results to match Admin.js UI: {id, code, title, instructor, startDate, endDate} and assignments accordingly.
  */
 export const SupabaseAdminDataService = {
   async listCourses() {

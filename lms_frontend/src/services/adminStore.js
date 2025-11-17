@@ -2,17 +2,16 @@
 
 /**
  * Admin data services for Courses and Assignments.
- * This mock implementation persists to in-memory state with localStorage backup.
- * The API is intentionally abstracted to allow swapping with Supabase later.
+ * Returns a Supabase-backed service when Supabase env is configured, otherwise falls back to mock.
  */
 
-// Storage keys for localStorage backup
+import { SupabaseAdminDataService } from "./supabaseDataService";
+
 const LS_KEYS = {
   courses: "lms.admin.courses.v1",
   assignments: "lms.admin.assignments.v1",
 };
 
-// In-memory stores
 let _courses = [];
 let _assignments = [];
 
@@ -41,12 +40,18 @@ function uid(prefix = "id") {
   return `${prefix}_${Math.random().toString(36).slice(2, 8)}_${Date.now().toString(36)}`;
 }
 
+// Detect supabase readiness lazily to avoid importing auth service here (prevent cycles)
+function supabaseReady() {
+  return Boolean(process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_ANON_KEY);
+}
+
 // PUBLIC_INTERFACE
 export function getAdminDataService() {
   /**
-   * Factory for the admin data service. Currently returns the mock service.
-   * Swap this to return a Supabase-backed implementation in the future.
+   * Factory for the admin data service.
+   * If Supabase is configured, return SupabaseAdminDataService, else MockAdminDataService.
    */
+  if (supabaseReady()) return SupabaseAdminDataService;
   return MockAdminDataService;
 }
 

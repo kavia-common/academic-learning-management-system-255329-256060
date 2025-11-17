@@ -20,7 +20,7 @@ import AuthError from "./pages/AuthError";
 // Simple layout with theme toggle and outlet renderer
 function Layout({ children }) {
   const [theme, setTheme] = useState("light");
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, signOut } = useAuth();
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -37,11 +37,13 @@ function Layout({ children }) {
           {theme === "light" ? "🌙 Dark" : "☀️ Light"}
         </button>
         <nav style={{ display: "flex", gap: 12 }}>
-          {!isAuthenticated && (
+          {!isAuthenticated ? (
             <>
               <a className="App-link" href="/signin">Sign in</a>
               <a className="App-link" href="/signup">Sign up</a>
             </>
+          ) : (
+            <button onClick={signOut} className="btn" style={{ padding: "6px 10px" }}>Sign out</button>
           )}
         </nav>
       </header>
