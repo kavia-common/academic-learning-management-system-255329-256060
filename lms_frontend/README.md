@@ -16,6 +16,12 @@ This app now includes a mock authentication flow with role selection and route g
 
 Tip: With mock signin, using `admin@domain.com` signs in as Admin; `instructor@domain.com` as Instructor; all others as Student.
 
+## Dashboard UI
+- Implements Sidebar, Header, Cards, and Progress widgets based on assets style guide (Ocean Professional).
+- Data is provided by lightweight mock services in `src/services/mockData.js` for:
+  - Enrolled courses, progress, upcoming deadlines, announcements.
+- Floating feedback tab on the right indicates “Beta”.
+
 ## Environment Variables
 See `.env.example`. Variables are optional in this phase and will be used when integrating real services (e.g., Supabase).
 
