@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleGuard from "./routes/RoleGuard";
 import SignIn from "./pages/SignIn";
@@ -15,7 +15,7 @@ import AuthError from "./pages/AuthError";
 import MockModeBanner from "./components/MockModeBanner";
 
 /**
- * Root application with routing and auth provider.
+ * Root application routes and layout (providers are mounted at index.js).
  */
 
 // Simple layout with theme toggle and outlet renderer
@@ -90,14 +90,10 @@ function AppRoutes() {
 
 // PUBLIC_INTERFACE
 export default function App() {
-  /** Application entrypoint. Provides auth context and router. */
+  /** Application component with layout and routes (context/router are provided in index.js). */
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Layout>
-          <AppRoutes />
-        </Layout>
-      </BrowserRouter>
-    </AuthProvider>
+    <Layout>
+      <AppRoutes />
+    </Layout>
   );
 }
