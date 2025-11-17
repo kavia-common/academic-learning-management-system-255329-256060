@@ -16,9 +16,10 @@ import MockModeBanner from "./components/MockModeBanner";
 
 /**
  * Root application routes and layout (providers are mounted at index.js).
+ * IMPORTANT: Components using useAuth (e.g., Layout) must only render under AuthProvider.
  */
 
-// Simple layout with theme toggle and outlet renderer
+// Local Layout component; intentionally not exported to avoid accidental usage outside provider
 function Layout({ children }) {
   const [theme, setTheme] = useState("light");
   const { isAuthenticated, signOut } = useAuth();
@@ -60,7 +61,14 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/signin" replace />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
-      <Route path="/auth/callback" element={<React.Suspense fallback={<div>Loading...</div>}><AuthCallback /></React.Suspense>} />
+      <Route
+        path="/auth/callback"
+        element={
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <AuthCallback />
+          </React.Suspense>
+        }
+      />
       <Route path="/auth/error" element={<AuthError />} />
 
       {/* Protected student dashboard */}
@@ -90,7 +98,10 @@ function AppRoutes() {
 
 // PUBLIC_INTERFACE
 export default function App() {
-  /** Application component with layout and routes (context/router are provided in index.js). */
+  /**
+   * Application component with layout and routes.
+   * Note: AuthProvider and BrowserRouter are mounted in index.js to ensure useAuth is available.
+   */
   return (
     <Layout>
       <AppRoutes />

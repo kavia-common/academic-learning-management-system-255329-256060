@@ -11,6 +11,7 @@ test('renders sign in link without AuthContext error', () => {
       </BrowserRouter>
     </AuthProvider>
   );
+  // Assert that "Sign in" link in Layout is present, indicating Layout rendered under provider
   const signIn = screen.getAllByText(/sign in/i)[0];
   expect(signIn).toBeInTheDocument();
 });
