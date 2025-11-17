@@ -20,6 +20,10 @@ import MockModeBanner from "./components/MockModeBanner";
  * Note: Layout is intentionally a file-private component and not exported to avoid usage outside App.
  */
 
+/**
+ * Note: Layout intentionally remains local to this module and is NOT exported.
+ * This prevents accidental mounting outside of AuthProvider in other entry points.
+ */
 // Local Layout component; intentionally not exported to avoid accidental usage outside provider
 function Layout({ children }) {
   const [theme, setTheme] = useState("light");

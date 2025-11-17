@@ -15,12 +15,53 @@ import {
 
 const AuthContext = createContext(undefined);
 
+// Helper to infer best-effort callsite for clearer error messages
+function inferCallerInfo() {
+  try {
+    const stack = new Error().stack || "";
+    // Try to find first stack frame outside this file
+    const lines = stack.split("\n").map((l) => l.trim());
+    const external = lines.find(
+      (l) =>
+        l.includes(".js") &&
+        !l.includes("AuthContext.js") &&
+        !l.includes("useContext") &&
+        !l.includes("Object.useAuth")
+    );
+    return external || "";
+  } catch {
+    return "";
+  }
+}
+
 // PUBLIC_INTERFACE
 export function useAuth() {
   /** Hook to access auth state and actions */
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within <AuthProvider />");
+  if (!ctx) {
+    const hint = inferCallerInfo();
+    const suggestion =
+      "useAuth must be used within <AuthProvider />. Ensure your component tree is wrapped: <BrowserRouter><AuthProvider><App/></AuthProvider></BrowserRouter> (in src/index.js). If you are rendering a page/component directly in tests or stories, wrap it with <AuthProvider>.";
+    const details = hint ? `${suggestion} Callsite: ${hint}` : suggestion;
+    throw new Error(details);
+  }
   return ctx;
+}
+
+/**
+ * Higher-order component to ensure a component is wrapped with AuthProvider.
+ * Useful for stories/tests/dev harnesses that might mount components in isolation.
+ */
+// PUBLIC_INTERFACE
+export function withAuth(Component) {
+  /** Wrap a React component with AuthProvider context */
+  return function WithAuthWrapper(props) {
+    return (
+      <AuthProvider>
+        <Component {...props} />
+      </AuthProvider>
+    );
+  };
 }
 
 // PUBLIC_INTERFACE

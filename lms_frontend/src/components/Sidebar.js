@@ -44,6 +44,10 @@ function IconUser(props) {
   );
 }
 
+/**
+ * Note: This component uses useAuth and must be rendered under <AuthProvider />.
+ * For isolated usage in tests/stories, wrap with withAuth from context/AuthContext.
+ */
 // PUBLIC_INTERFACE
 export default function Sidebar() {
     /** Sidebar with profile and nav items */

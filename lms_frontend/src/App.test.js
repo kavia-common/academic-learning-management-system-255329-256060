@@ -5,11 +5,11 @@ import { BrowserRouter } from 'react-router-dom';
 
 test('renders sign in link without AuthContext error', () => {
   render(
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <App />
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
   // Assert that "Sign in" link in Layout is present, indicating Layout rendered under provider
   const signIn = screen.getAllByText(/sign in/i)[0];
