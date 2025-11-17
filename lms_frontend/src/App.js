@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Link, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleGuard from "./routes/RoleGuard";
@@ -38,8 +38,8 @@ function Layout({ children }) {
           {theme === "light" ? "🌙 Dark" : "☀️ Light"}
         </button>
         <nav style={{ display: "flex", gap: 12 }}>
-          <a className="App-link" href="/signin">Sign in</a>
-          <a className="App-link" href="/signup">Sign up</a>
+          <Link className="App-link" to="/signin">Sign in</Link>
+          <Link className="App-link" to="/signup">Sign up</Link>
         </nav>
       </header>
       <MockModeBanner />

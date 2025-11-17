@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 /**
  * Sidebar component with profile header and navigation.
@@ -48,15 +48,16 @@ function IconUser(props) {
 // PUBLIC_INTERFACE
 export default function Sidebar() {
   /** Sidebar with profile and nav items (auth disabled) */
-  const location = useLocation();
+  const navigate = useNavigate();
   const placeholderUser = { name: "Student Name", email: "", role: "Student" };
 
+  // Use "to" paths that are routable; for hash sections, keep base route and add hash
   const items = [
-    { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: IconDashboard },
-    { key: "courses", label: "Courses", href: "/dashboard#courses", icon: IconBook },
-    { key: "quizzes", label: "Quizzes", href: "/dashboard#quizzes", icon: IconPin, badge: "!" },
-    { key: "assignments", label: "My Assignments", href: "/dashboard#assignments", icon: IconDoc },
-    { key: "profile", label: "Profile", href: "/dashboard#profile", icon: IconUser },
+    { key: "dashboard", label: "Dashboard", to: "/dashboard", icon: IconDashboard },
+    { key: "courses", label: "Courses", to: "/dashboard#courses", icon: IconBook },
+    { key: "quizzes", label: "Quizzes", to: "/dashboard#quizzes", icon: IconPin, badge: "!" },
+    { key: "assignments", label: "My Assignments", to: "/dashboard#assignments", icon: IconDoc },
+    { key: "profile", label: "Profile", to: "/dashboard#profile", icon: IconUser },
   ];
 
   return (
@@ -68,22 +69,37 @@ export default function Sidebar() {
       </div>
       <nav className="menu" aria-label="Sidebar">
         {items.map((it) => {
-          const active = location.pathname === it.href || location.hash === it.href.replace("/dashboard", "");
           const Icon = it.icon;
+          // NavLink handles active state; for hash targets, we supply an end=false so base route stays active
+          const [pathname, hash] = it.to.split("#");
+          const to = { pathname, hash: hash ? `#${hash}` : undefined };
           return (
-            <Link
+            <NavLink
               key={it.key}
-              to={it.href}
-              className={`menu-item${active ? " active" : ""}`}
-              aria-current={active ? "page" : undefined}
+              to={to}
+              className={({ isActive, isPending, location }) => {
+                // Treat as active when base path matches; also when hash matches for in-page sections
+                let active = isActive;
+                if (!active && hash && location?.hash === `#${hash}` && location?.pathname === pathname) {
+                  active = true;
+                }
+                return `menu-item${active ? " active" : ""}`;
+              }}
               aria-label={it.label}
+              end={false}
+              onClick={(e) => {
+                // Ensure client-side navigation and in-page hash scroll without full reload
+                e.preventDefault();
+                const url = `${pathname}${hash ? `#${hash}` : ""}`;
+                navigate(url);
+              }}
             >
               <Icon className="icon" />
               <span className="label">{it.label}</span>
               {it.badge && (
                 <span className="badge" aria-label={`${it.label}, 1 alert`}>!</span>
               )}
-            </Link>
+            </NavLink>
           );
         })}
       </nav>
