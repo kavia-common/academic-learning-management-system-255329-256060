@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
  * Works in both Supabase and mock modes (AuthContext abstracts the session).
  */
 
+/* Components here depend on AuthContext and assume they are rendered beneath <AuthProvider />. */
 // PUBLIC_INTERFACE
 export default function ProtectedRoute() {
   /** ProtectedRoute element used in react-router route definitions */

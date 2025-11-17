@@ -17,6 +17,7 @@ import MockModeBanner from "./components/MockModeBanner";
 /**
  * Root application routes and layout (providers are mounted at index.js).
  * IMPORTANT: Components using useAuth (e.g., Layout) must only render under AuthProvider.
+ * Note: Layout is intentionally a file-private component and not exported to avoid usage outside App.
  */
 
 // Local Layout component; intentionally not exported to avoid accidental usage outside provider

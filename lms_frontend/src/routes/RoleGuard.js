@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
  * Usage: <Route element={<RoleGuard allowed={['Admin']} />}> ... </Route>
  */
 
+/* Uses role from AuthContext; must be rendered under <AuthProvider />. */
 // PUBLIC_INTERFACE
 export default function RoleGuard({ allowed = [] }) {
   /** RoleGuard element used in react-router route definitions */
